@@ -1,0 +1,20 @@
+{
+  "name": "teatro-arena-3d",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Jogo educacional 3D multiplayer sobre teatro (PC, celular e VR)",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "compression": "^1.8.2",
+    "express": "^4.22.3",
+    "three": "^0.186.1",
+    "ws": "^8.22.0"
+  }
+}

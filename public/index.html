@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Teatro Arena 3D</title>
+<meta name="theme-color" content="#0d0a14">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Figtree:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0d0a14;--velvet:#4a0f22;--wine:#7d1230;--amber:#ffc857;--paper:#f6e9d2;--paper2:#ecdcbc;--gel:#7fd6e8;--txt:#fdf3e1;--mut:#c9b9a2;--bad:#e0524d;--ok:#3fae74;
+--disp:'Abril Fatface',Georgia,'Times New Roman',serif;--ui:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--ink);color:var(--txt);font-family:var(--ui)}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gel);outline-offset:2px}
+.hide{display:none!important}
+.screen{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:max(14px,env(safe-area-inset-top)) 14px 14px;overflow:auto;z-index:10}
+.screen.show{display:flex}
+
+/* ingresso */
+.ticket{position:relative;display:flex;background:var(--paper);color:#2a1208;border-radius:18px;max-width:880px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.6);
+ -webkit-mask:radial-gradient(circle 14px at 0 50%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 14px at 100% 50%,#0000 98%,#000) right/51% 100% no-repeat;mask:radial-gradient(circle 14px at 0 50%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 14px at 100% 50%,#0000 98%,#000) right/51% 100% no-repeat}
+.ticket .main{flex:1;padding:26px 28px 22px;min-width:0}
+.ticket .stub{width:250px;padding:26px 22px;border-left:3px dashed rgba(74,15,34,.45);display:flex;flex-direction:column;gap:12px;justify-content:center;background:var(--paper2)}
+.logo h1{font:400 clamp(34px,6vw,58px)/0.95 var(--disp);margin:0;color:var(--velvet);letter-spacing:.5px}
+.logo h1 span{display:block;font-size:.5em;color:var(--wine);margin-top:4px}
+.logo p{margin:8px 0 14px;color:#5b3a2a;font-weight:600;max-width:34ch}
+.lbl{display:block;font-weight:800;font-size:13px;color:#6b3a2a;margin:12px 0 6px}
+input[type=text],input:not([type]),select{width:100%;font:700 18px var(--ui);padding:11px 13px;border-radius:12px;border:2px solid rgba(74,15,34,.35);background:#fffaf0;color:#2a1208}
+.swatches,.masks{display:flex;flex-wrap:wrap;gap:8px}
+.sw{width:34px;height:34px;border-radius:50%;border:3px solid transparent;box-shadow:0 0 0 2px rgba(0,0,0,.2)}
+.sw.on{border-color:#fff;box-shadow:0 0 0 3px var(--velvet)}
+.mk{width:50px;height:50px;border-radius:12px;border:3px solid transparent;padding:0;overflow:hidden;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.2)}
+.mk img{width:100%;height:100%;display:block}
+.mk.on{border-color:#fff;box-shadow:0 0 0 3px var(--velvet)}
+.seg{display:flex;gap:6px;margin-top:14px}
+.seg button{flex:1;padding:9px 6px;border-radius:12px;border:2px solid rgba(74,15,34,.35);background:transparent;font-weight:700;color:#4a2a1a}
+.seg button.on{background:var(--velvet);color:var(--paper);border-color:var(--velvet)}
+.btn{padding:13px 16px;border-radius:14px;border:0;font-weight:800;font-size:16px;background:var(--velvet);color:var(--paper);box-shadow:0 4px 0 #2a0612}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #2a0612}
+.btn.gold{background:var(--amber);color:#3a1604;box-shadow:0 4px 0 #b98a1d}
+.btn.gold:active{box-shadow:0 1px 0 #b98a1d}
+.btn.ghost{background:transparent;color:var(--velvet);border:2px solid rgba(74,15,34,.4);box-shadow:none;padding:10px 12px;font-size:14px}
+.btn.dark{background:rgba(255,255,255,.1);color:var(--txt);box-shadow:none;border:1px solid rgba(255,255,255,.25)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.stub h3{font:400 22px var(--disp);margin:0;color:var(--velvet)}
+#code{text-transform:uppercase;text-align:center;letter-spacing:6px;font-size:24px}
+.status{min-height:20px;margin:10px 0 0;font-weight:700;color:var(--wine);font-size:14px}
+.small{font-size:13px;color:#6b4a3a;margin:0}
+@media(max-width:700px){.ticket{flex-direction:column;-webkit-mask:none;mask:none}.ticket .stub{width:auto;border-left:0;border-top:3px dashed rgba(74,15,34,.45)}}
+
+/* painéis escuros (lobby, final, modais) */
+.panel{background:rgba(16,8,18,.9);backdrop-filter:blur(8px);border:1px solid rgba(255,200,87,.35);border-radius:18px;padding:20px;max-width:820px;width:100%;box-shadow:0 30px 70px rgba(0,0,0,.6)}
+.panel h2{font:400 30px var(--disp);margin:0 0 4px;color:var(--amber)}
+.codebox{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:6px 0 12px}
+.codebig{font:400 clamp(44px,9vw,78px)/1 var(--disp);letter-spacing:10px;color:var(--amber);background:rgba(255,200,87,.08);border:2px dashed rgba(255,200,87,.5);border-radius:14px;padding:4px 18px}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:12px 0;max-height:32vh;overflow:auto}
+.pl{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border-radius:12px;padding:6px 8px;font-weight:700;font-size:14px;min-width:0}
+.pl img{width:30px;height:30px;border-radius:8px;flex:none}
+.pl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.pl i{font-style:normal;font-size:11px;opacity:.7}
+.pl .x{background:none;border:0;opacity:.6;padding:2px 6px}
+.pl .dot{width:10px;height:10px;border-radius:50%;flex:none}
+.cfg{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:10px 0}
+.cfg label{font-size:13px;font-weight:700;color:var(--mut);display:flex;flex-direction:column;gap:4px}
+.cfg select{padding:9px 10px;font-size:15px;border-color:rgba(255,255,255,.25);background:#1c1020;color:var(--txt)}
+.chk{flex-direction:row!important;align-items:center;gap:8px!important}
+.chk input{width:20px;height:20px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tip{margin-top:10px;font-size:14px;color:var(--mut);border-left:3px solid var(--amber);padding-left:10px;min-height:42px}
+
+/* HUD */
+#hud{position:fixed;inset:0;pointer-events:none;z-index:5;display:none}
+#hud.show{display:block}
+#hud>*{pointer-events:none}
+#hTop{position:absolute;top:max(8px,env(safe-area-inset-top));left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.chip{background:rgba(16,8,18,.82);border:1px solid rgba(255,200,87,.45);border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px}
+.chip.gold{background:var(--amber);color:#3a1604;border-color:var(--amber)}
+#hQ{max-width:min(760px,96vw);background:rgba(16,8,18,.86);border:2px solid rgba(255,200,87,.5);border-radius:16px;padding:10px 16px;font:700 clamp(15px,2.6vw,22px)/1.3 var(--ui);text-align:center;backdrop-filter:blur(6px)}
+#hBar{width:min(760px,96vw);height:8px;border-radius:5px;background:rgba(255,255,255,.15);overflow:hidden}
+#hBarFill{height:100%;width:100%;background:var(--amber)}
+#hOpts{position:absolute;left:0;right:0;bottom:calc(76px + env(safe-area-inset-bottom));display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:0 8px}
+.opt{pointer-events:auto;display:flex;gap:8px;align-items:center;max-width:min(300px,46vw);padding:8px 12px;border-radius:12px;border:0;font-weight:800;font-size:clamp(12px,2.2vw,15px);text-align:left;color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.4)}
+.opt b{font:400 22px var(--disp);flex:none}
+.opt.dim{opacity:.35}.opt.right{outline:4px solid #fff}
+#hDir{position:absolute;left:10px;bottom:calc(76px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:min(230px,44vw);pointer-events:auto}
+#hDir button{background:rgba(16,8,18,.82);border:1px solid rgba(255,200,87,.4);border-radius:8px;padding:6px 2px;font-size:11px;font-weight:700;line-height:1.1}
+#hDir button.hot{background:var(--amber);color:#3a1604}
+#hDir .cap{grid-column:1/-1;font-size:11px;text-align:center;opacity:.85}
+#hBoard{position:absolute;right:8px;top:calc(max(8px,env(safe-area-inset-top)) + 86px);width:min(190px,34vw);background:rgba(16,8,18,.78);border:1px solid rgba(255,200,87,.3);border-radius:12px;padding:7px 9px;font-size:12px;font-weight:700}
+#hBoard div{display:flex;justify-content:space-between;gap:6px;padding:2px 0}
+#hBoard div span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#hBoard .me{color:var(--amber)}
+#hHost{position:absolute;left:10px;top:calc(max(8px,env(safe-area-inset-top)) + 4px);display:flex;gap:6px;pointer-events:auto}
+#hHost button,#mute{background:rgba(16,8,18,.82);border:1px solid rgba(255,200,87,.45);border-radius:10px;padding:7px 10px;font-weight:800;font-size:13px}
+#mute{position:fixed;right:8px;top:max(8px,env(safe-area-inset-top));z-index:20;pointer-events:auto}
+#hEmotes{position:absolute;left:50%;transform:translateX(-50%);bottom:max(8px,env(safe-area-inset-bottom));display:flex;gap:5px;pointer-events:auto;max-width:96vw;overflow-x:auto;padding:4px}
+#hEmotes button{flex:none;width:42px;height:42px;border-radius:50%;background:rgba(16,8,18,.82);border:1px solid rgba(255,200,87,.4);font-size:21px;padding:0}
+#joy{position:absolute;left:18px;bottom:calc(116px + env(safe-area-inset-bottom));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,200,87,.35);pointer-events:auto;touch-action:none;display:none}
+#joy i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,200,87,.55)}
+body.touch #joy{display:block;bottom:calc(210px + env(safe-area-inset-bottom));width:110px;height:110px}
+body.touch #joy i{left:30px;top:30px}
+body.touch #hDir{bottom:calc(70px + env(safe-area-inset-bottom));left:auto;right:8px}
+@media(max-width:700px){#hTop{top:calc(max(8px,env(safe-area-inset-top)) + 38px)}#hBoard{top:calc(max(8px,env(safe-area-inset-top)) + 150px);width:150px;font-size:11px}.chip{font-size:12px;padding:3px 9px}}
+#banner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:0;transition:opacity .35s;padding:20px;background:radial-gradient(circle,rgba(0,0,0,.45),transparent 70%)}
+#banner.on{opacity:1}
+#banner h2{font:400 clamp(40px,9vw,92px)/1 var(--disp);margin:0;color:var(--amber);text-shadow:0 4px 0 #4a0f22,0 10px 40px rgba(0,0,0,.8)}
+#banner p{font-size:clamp(15px,3vw,24px);font-weight:700;margin:8px 0 0;text-shadow:0 2px 10px #000}
+#toast{position:fixed;left:50%;bottom:calc(130px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(16,8,18,.92);border:1px solid var(--amber);padding:10px 16px;border-radius:12px;font-weight:700;z-index:40;max-width:90vw;text-align:center;display:none}
+
+/* painéis de interação (improviso / votação) e revelação */
+#hPanel,#rev{position:absolute;left:50%;transform:translateX(-50%);pointer-events:auto;background:rgba(16,8,18,.92);border:2px solid rgba(255,200,87,.5);border-radius:16px;padding:12px 14px;width:min(640px,96vw);max-height:56vh;overflow:auto}
+#hPanel{bottom:calc(66px + env(safe-area-inset-bottom))}
+#rev{top:max(64px,9vh);transform:translateX(-50%);max-height:50vh;text-align:center;padding:10px 14px}
+#rev h3{font:400 26px var(--disp);margin:0 0 6px;color:var(--amber)}
+#rev .gain{font:400 34px var(--disp);margin:0}
+#rev .gain.ok{color:var(--ok)}#rev .gain.bad{color:var(--bad)}
+#rev p{margin:6px 0;font-size:15px;line-height:1.4}
+#rev .did{background:rgba(255,200,87,.1);border-left:3px solid var(--amber);padding:8px 10px;text-align:left;border-radius:6px;font-size:14px}
+.pg{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:6px;margin:8px 0}
+.pg button{background:rgba(255,255,255,.08);border:2px solid transparent;border-radius:10px;padding:6px 4px;font-size:12px;font-weight:700}
+.pg button span{display:block;font-size:22px}
+.pg button.on,.cards button.on,.cands button.on{border-color:var(--amber);background:rgba(255,200,87,.2)}
+.cards,.cands{display:grid;gap:6px;margin:8px 0}
+.cards button,.cands button{text-align:left;background:rgba(255,255,255,.08);border:2px solid transparent;border-radius:10px;padding:9px 11px;font-weight:700;font-size:14px}
+.cands button[disabled]{opacity:.45}
+#hPanel h4{margin:0 0 4px;font:400 20px var(--disp);color:var(--amber)}
+#hPanel p{margin:2px 0;font-size:14px}
+#hPanel input{width:100%;margin:4px 0;padding:9px;border-radius:10px;border:2px solid rgba(255,255,255,.25);background:#1c1020;color:var(--txt);font:600 15px var(--ui)}
+body.tv #hQ{font-size:clamp(20px,3vw,34px);max-width:min(1100px,96vw)}
+body.tv #hBoard{font-size:16px;width:240px}
+body.tv #hEmotes,body.tv #joy{display:none!important}
+.vrbtn{z-index:30}
+
+/* final e modais */
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin:10px 0}
+.podium div{flex:1;max-width:170px;text-align:center;border-radius:12px 12px 0 0;padding:8px 6px;font-weight:800}
+.podium .p1{background:linear-gradient(#ffc857,#b98a1d);color:#3a1604;height:130px}
+.podium .p2{background:linear-gradient(#d6dae2,#8f95a3);color:#222;height:100px}
+.podium .p3{background:linear-gradient(#d9a066,#8b5a2b);color:#2a1208;height:80px}
+.podium b{display:block;font:400 22px var(--disp)}
+.rank{display:flex;flex-direction:column;gap:4px;max-height:26vh;overflow:auto;margin:8px 0}
+.rank div{display:flex;justify-content:space-between;padding:6px 10px;background:rgba(255,255,255,.07);border-radius:8px;font-weight:700;font-size:14px}
+.rank .me{outline:2px solid var(--amber)}
+.awards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:8px 0}
+.award{background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.4);border-radius:12px;padding:8px 10px;font-size:13px}
+.award b{display:block;font:400 17px var(--disp);color:var(--amber)}
+.teamsbar{display:flex;gap:8px;margin:8px 0}
+.teamsbar div{flex:1;text-align:center;border-radius:10px;padding:8px;font-weight:800}
+.modal{align-items:flex-start}
+.modal .panel{margin:auto;max-height:92vh;display:flex;flex-direction:column}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:6px 0}
+.tabs button{flex:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 13px;font-weight:700;font-size:13px}
+.tabs button.on{background:var(--amber);color:#3a1604}
+.panel input.search{margin:6px 0;padding:10px;border-radius:12px;border:2px solid rgba(255,255,255,.25);background:#1c1020;color:var(--txt);font:600 15px var(--ui);width:100%}
+.encbody{overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;padding:4px 2px;flex:1}
+.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 12px}
+.card b{display:block;font:400 18px var(--disp);color:var(--amber);margin-bottom:4px}
+.card p{margin:0;font-size:14px;line-height:1.45;color:#eadfcb}
+.how ol{margin:8px 0;padding-left:22px;line-height:1.6}
+.how li{margin-bottom:6px}
+@media (prefers-reduced-motion:reduce){#banner{transition:none}}
+</style>
+<script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js","three/addons/":"/vendor/three/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="c" tabindex="0" aria-label="Palco do teatro em 3D"></canvas>
+
+<!-- HOME -->
+<section id="home" class="screen show">
+  <div class="ticket">
+    <div class="main">
+      <div class="logo"><h1>Teatro Arena<span>o jogo da cena</span></h1><p>Aprenda teatro em cena, competindo com a turma. Funciona no computador, no celular e em óculos de VR.</p></div>
+      <label class="lbl" for="name">Seu nome artístico</label>
+      <input id="name" maxlength="16" placeholder="Ex.: Julieta" autocomplete="off">
+      <span class="lbl">Cor do figurino</span><div id="colors" class="swatches"></div>
+      <span class="lbl">Máscara</span><div id="masks" class="masks"></div>
+      <div class="seg" id="role"><button data-r="player" class="on">Vou jogar</button><button data-r="screen">Telão da sala</button></div>
+      <p class="small" style="margin-top:6px">Telão: abra num computador ligado ao projetor para a turma acompanhar a cena.</p>
+      <p id="status" class="status" role="status"></p>
+    </div>
+    <div class="stub">
+      <h3>Entrar numa sala</h3>
+      <input id="code" maxlength="4" placeholder="CÓDIGO" autocomplete="off">
+      <button id="bJoin" class="btn">Entrar</button>
+      <button id="bCreate" class="btn gold">Criar sala</button>
+      <button id="bSolo" class="btn ghost">Treino solo com bots</button>
+      <button id="bEnc" class="btn ghost">Camarim: enciclopédia</button>
+      <button id="bHow" class="btn ghost">Como jogar</button>
+    </div>
+  </div>
+</section>
+
+<!-- LOBBY -->
+<section id="lobby" class="screen" style="align-items:flex-start">
+  <div class="panel" style="margin:auto">
+    <h2>Camarim da sala</h2>
+    <div class="codebox"><div class="codebig" id="lobCode">----</div>
+      <div><button class="btn dark" id="lobCopy">Copiar link</button><p class="small" style="color:var(--mut);margin-top:6px">Quem entra pelo link já cai nesta sala.</p></div></div>
+    <div class="plist" id="lobPlayers"></div>
+    <div id="lobCfg" class="hide">
+      <div class="cfg">
+        <label>Cenas<select id="cfgRounds"><option>6</option><option>8</option><option selected>10</option><option>12</option><option>16</option><option>20</option></select></label>
+        <label>Conteúdo<select id="cfgPack"><option value="all">Tudo sobre teatro</option><option value="historia">História e curiosidades</option><option value="palco">Palco, gêneros e técnicas</option><option value="brasil">Brasil e mundo</option></select></label>
+        <label class="chk"><input type="checkbox" id="cfgTeams"> Jogar em duas equipes</label>
+        <label class="chk"><input type="checkbox" id="cfgFree"> Texto livre nas improvisações</label>
+      </div>
+      <div class="row"><button class="btn dark" id="bBots">+ 3 bots</button><button class="btn dark" id="bBotsClear">Remover bots</button><button class="btn gold" id="bStart" style="margin-left:auto">Abrir as cortinas</button></div>
+    </div>
+    <p id="lobInfo" class="small" style="color:var(--mut)"></p>
+    <div class="row" style="margin-top:10px"><button class="btn dark" id="bLobEnc">Camarim: enciclopédia</button><button class="btn dark" id="bLeave">Sair da sala</button></div>
+    <div class="tip" id="lobTip"></div>
+  </div>
+</section>
+
+<!-- HUD -->
+<div id="hud">
+  <div id="hHost"><button id="bSkip" class="hide">Avançar</button></div>
+  <div id="hTop"><div class="chips"><span class="chip" id="hRound"></span><span class="chip" id="hCat"></span><span class="chip gold hide" id="hMult">Pontos em dobro</span><span class="chip" id="hMe"></span></div>
+    <div id="hQ" class="hide"></div><div id="hBar" class="hide"><div id="hBarFill"></div></div></div>
+  <div id="hBoard" class="hide"></div>
+  <div id="hDir" class="hide"></div>
+  <div id="hOpts"></div>
+  <div id="hPanel" class="hide"></div>
+  <div id="rev" class="hide"></div>
+  <div id="joy"><i></i></div>
+  <div id="hEmotes"></div>
+  <div id="banner"><h2 id="bnT"></h2><p id="bnS"></p></div>
+</div>
+<button id="mute" aria-label="Som" class="hide">Som: ligado</button>
+<div id="toast" role="status"></div>
+
+<!-- FINAL -->
+<section id="fin" class="screen" style="align-items:flex-start">
+  <div class="panel" style="margin:auto">
+    <h2>Fim de espetáculo</h2>
+    <div class="podium" id="finPod"></div>
+    <div class="teamsbar hide" id="finTeams"></div>
+    <div class="rank" id="finRank"></div>
+    <div class="awards" id="finAwards"></div>
+    <div class="row"><button class="btn gold hide" id="bAgain">Nova sessão na mesma sala</button><button class="btn dark" id="bFinEnc">Camarim: enciclopédia</button><button class="btn dark" id="bExit">Sair</button></div>
+    <p class="small" id="finInfo" style="color:var(--mut);margin-top:8px"></p>
+  </div>
+</section>
+
+<!-- ENCICLOPÉDIA -->
+<section id="enc" class="screen modal">
+  <div class="panel">
+    <div class="row"><h2 style="margin:0">Camarim: enciclopédia do teatro</h2><button class="btn dark" id="encClose" style="margin-left:auto">Fechar</button></div>
+    <input class="search" id="encSearch" placeholder="Buscar: coxia, Brecht, Kabuki, catarse...">
+    <div class="tabs" id="encTabs"></div>
+    <div class="encbody" id="encBody"></div>
+  </div>
+</section>
+
+<!-- COMO JOGAR -->
+<section id="how" class="screen modal">
+  <div class="panel how">
+    <div class="row"><h2 style="margin:0">Como jogar</h2><button class="btn dark" id="howClose" style="margin-left:auto">Fechar</button></div>
+    <ol>
+      <li><b>Mover:</b> teclas W A S D ou setas no computador; joystick na tela no celular; direcional do controle esquerdo em VR (o direito gira). Arraste a tela para girar a câmera.</li>
+      <li><b>Quiz Cênico:</b> leia a pergunta e vá até a plataforma da resposta (A, B, C ou D). Quem sobe primeiro na certa ganha mais pontos. Quem pisa na errada cai do palco!</li>
+      <li><b>Verdadeiro ou Falso:</b> duas plataformas grandes. Escolha rápido.</li>
+      <li><b>Direção de Cena:</b> o diretor manda você ir a uma área do palco. Lembre: direita e esquerda são do ponto de vista do ator, olhando para a plateia.</li>
+      <li><b>Cena Relâmpago:</b> sorteie personagem, lugar e conflito, escolha uma pose e uma fala e suba ao palco. Depois vote na melhor cena (não vale votar em si mesmo).</li>
+      <li><b>Expressões:</b> teclas 1 a 9 (ou botões) fazem seu personagem mostrar emoções em qualquer momento.</li>
+      <li>A última cena vale pontos em dobro. Respostas certas seguidas dão bônus de sequência.</li>
+      <li><b>Professor(a):</b> crie a sala, abra o Telão num projetor e passe o código para a turma. Você controla as cenas e pode avançar ou remover jogadores.</li>
+    </ol>
+  </div>
+</section>
+
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>
